@@ -1,6 +1,6 @@
 #include "stats.h"
-#include <algorithm>
-#include <cmath>
+#include <algorithm> // for min and max
+#include <cmath>   // for nan
 
 Statistics::Stats Statistics::ComputeStatistics(const std::vector<double>& rfVectorValues) 
 {
