@@ -83,12 +83,12 @@ TEST_CASE("raises alerts when max is greater than threshold") {
                if (maximum_value > (double)m_maxThreshold)
                {
                   // threshold crossed, set the alerts
-                  if (m_alerters.size() == 2)
+                  if (!m_alerters.empty())
                   {
-                     //first object in the list is assumed to be of class EmailAlert type
-                     //and second object in the list is assumed to be of class LEDAlert type
-                     m_alerters[0]->vSetAlert(true);
-                     m_alerters[1]->vSetAlert(true);
+                     for (int index = 0; index < (int)m_alerters.size(); ++index)
+                     {
+                        m_alerters[index]->vSetAlert(true);
+                     }
                   }
                }
             }
