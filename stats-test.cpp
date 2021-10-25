@@ -25,14 +25,88 @@ TEST_CASE("average is NaN for empty array") {
 }
 
 TEST_CASE("raises alerts when max is greater than threshold") {
+    
+    class IAlerter //abstract class
+    {
+      // do nothing;
+      public:
+         virtual void vSetAlert(bool bNewVal) = 0;
+    };
+
+    class EmailAlert:public IAlerter
+    {
+       public:
+       EmailAlert()
+       {
+          emailSent = false;   // default
+       }
+
+       void vSetAlert(bool bNewVal)
+       {
+          emailSent = bNewVal;
+       }
+
+       bool emailSent;   // set to true, if maximum value crosses the threshold.
+    };
+    
+    class LEDAlert :public IAlerter
+    {
+       public:
+       LEDAlert()
+       {
+          ledGlows = false;
+       }
+
+       void vSetAlert(bool bNewVal)
+       {
+          ledGlows = bNewVal;
+       }
+
+       bool ledGlows; // set to true, if maximum value crosses the threshold.
+    };
+    
+    class StatsAlerter
+      {
+      public:
+         StatsAlerter(float maxThreshold, const std::vector<IAlerter*> vAlerters)
+         {
+            m_maxThreshold = maxThreshold;
+            m_alerters = vAlerters;
+         }
+
+      void checkAndAlert(const std::vector<double>& rfVectorValues)
+      {
+            // get the maximum values from the list.
+            if (!rfVectorValues.empty())
+            {
+               double maximum_value = *std::max_element(rfVectorValues.begin(), rfVectorValues.end());
+               if (maximum_value > (double)m_maxThreshold)
+               {
+                  // threshold crossed, set the alerts
+                  if (m_alerters.size() == 2)
+                  {
+                     //first object in the list is assumed to be of class EmailAlert type
+                     //and second object in the list is assumed to be of class LEDAlert type
+                     m_alerters[0]->vSetAlert(true);
+                     m_alerters[1]->vSetAlert(true);
+                  }
+               }
+            }
+      }
+
+      private:
+         float m_maxThreshold;
+         std::vector<IAlerter*> m_alerters;
+      };
+    
     EmailAlert emailAlert;
     LEDAlert ledAlert;
     std::vector<IAlerter*> alerters = {&emailAlert, &ledAlert};
     
-    const float maxThreshold = 10.2;
+    const float maxThreshold = (float)10.2;
     StatsAlerter statsAlerter(maxThreshold, alerters);
     statsAlerter.checkAndAlert({99.8, 34.2, 4.5, 6.7});
 
-    REQUIRE(emailAlert.emailSent);
-    REQUIRE(ledAlert.ledGlows);
+    REQUIRE(emailAlert.emailSent == true);
+    REQUIRE(ledAlert.ledGlows == true);
 }
